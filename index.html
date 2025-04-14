@@ -204,7 +204,16 @@
           };
 
           console.log("Form Data:", formData);
-          openMessenger();
+          console.log("Opening messenger...");
+
+          Genesys("command", "Messenger.open");
+          Genesys("command", "Database.set", {
+            messaging: {
+              customAttributes: formData,
+            },
+          });
+          Genesys();
+          minimizeForm();
         });
 
       function minimizeForm() {
@@ -226,7 +235,7 @@
           },
         });
         Genesys();
-        closeForm();
+        minimizeForm();
       };
     </script>
   </body>
