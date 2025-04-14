@@ -200,6 +200,7 @@
             phone: document.getElementById("phone").value,
             address: document.getElementById("address").value,
             reason: document.getElementById("reason").value,
+            transcript: document.getElementById("emailTranscript").value,
           };
 
           console.log("Form Data:", formData);
@@ -221,14 +222,11 @@
         Genesys("command", "Messenger.open");
         Genesys("command", "Database.set", {
           messaging: {
-            customAttributes: {
-              department: "sales",
-              property_type: "apartment",
-              device: "mobile",
-            },
+            customAttributes: formData,
           },
         });
         Genesys();
+        closeForm();
       };
     </script>
   </body>
