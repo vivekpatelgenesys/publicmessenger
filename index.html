@@ -203,6 +203,7 @@
           };
 
           console.log("Form Data:", formData);
+          openMessenger();
         });
 
       function minimizeForm() {
@@ -214,6 +215,21 @@
       function closeForm() {
         document.querySelector(".form-container").style.display = "none";
       }
+      const openMessenger = () => {
+        console.log("Opening messenger...");
+
+        Genesys("command", "Messenger.open");
+        Genesys("command", "Database.set", {
+          messaging: {
+            customAttributes: {
+              department: "sales",
+              property_type: "apartment",
+              device: "mobile",
+            },
+          },
+        });
+        Genesys();
+      };
     </script>
   </body>
 </html>
