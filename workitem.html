@@ -432,7 +432,11 @@
           const platformClient = require("platformClient");
           const client = platformClient.ApiClient.instance;
           client
-            .loginImplicitGrant(clientId, redirectUri, { state: state })
+            .loginImplicitGrant(
+              "036a31f4-4a29-4dfc-b04b-8c60efa50904",
+              "https://vivekpatelgenesys.github.io/publicmessenger/workitem",
+              { state: state }
+            )
             .then((data) => {
               console.log(data);
               const formData = {
