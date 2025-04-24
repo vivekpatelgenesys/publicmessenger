@@ -173,11 +173,15 @@
     <script>
       const platformClient = require("platformClient");
       const client = platformClient.ApiClient.instance;
-      client.loginImplicitGrant(
-        "036a31f4-4a29-4dfc-b04b-8c60efa50904",
-        "https://vivekpatelgenesys.github.io/publicmessenger/workitem"
-      );
-      client.setAccessToken();
+      client
+        .loginImplicitGrant(
+          "036a31f4-4a29-4dfc-b04b-8c60efa50904",
+          "https://vivekpatelgenesys.github.io/publicmessenger/workitem"
+        )
+        .then((data) => {
+          const accessToken = data.accessToken; // Get token from response
+          client.setAccessToken(accessToken);
+        });
     </script>
   </head>
   <body>
