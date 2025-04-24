@@ -170,6 +170,15 @@
       }
     </style>
     <script src="https://sdk-cdn.mypurecloud.com/javascript/219.0.0/purecloud-platform-client-v2.min.js"></script>
+    <script>
+      const platformClient = require("platformClient");
+      const client = platformClient.ApiClient.instance;
+      client.loginImplicitGrant(
+        "036a31f4-4a29-4dfc-b04b-8c60efa50904",
+        "https://vivekpatelgenesys.github.io/publicmessenger/workitem"
+      );
+      client.setAccessToken();
+    </script>
   </head>
   <body>
     <div class="form-header">
@@ -429,14 +438,7 @@
         .getElementById("contactForm")
         .addEventListener("submit", function (e) {
           e.preventDefault();
-          const platformClient = require("platformClient");
-          const client = platformClient.ApiClient.instance;
           client
-            .loginImplicitGrant(
-              "036a31f4-4a29-4dfc-b04b-8c60efa50904",
-              "https://vivekpatelgenesys.github.io/publicmessenger/workitem",
-              { state: state }
-            )
             .then((data) => {
               console.log(data);
               const formData = {
