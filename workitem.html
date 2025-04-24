@@ -438,87 +438,79 @@
         .getElementById("contactForm")
         .addEventListener("submit", function (e) {
           e.preventDefault();
-          client
-            .then((data) => {
-              console.log(data);
-              const formData = {
-                name: document.getElementById("name").value,
-                email: document.getElementById("email").value,
-                phone: document.getElementById("phone").value,
-                extension: document.getElementById("extension").value,
-                fax: document.getElementById("fax").value,
-                businessType: document.getElementById("businessType").value,
-                company: document.getElementById("company").value,
-                accountNumber: document.getElementById("accountNumber").value,
-                streetAddress: document.getElementById("streetAddress").value,
-                apt: document.getElementById("apt").value,
-                city: document.getElementById("city").value,
-                state: document.getElementById("state").value,
-                zip: document.getElementById("zip").value,
-                shippingInstructions: document.getElementById(
-                  "shippingInstructions"
-                ).value,
-                partNumber: document.getElementById("partNumber").value,
-                partName: document.getElementById("partName").value,
-                quantity: document.getElementById("quantity").value,
-                manuname: document.getElementById("manuname").value,
-                leadTime: document.getElementById("leadTime").value,
-                productDescription:
-                  document.getElementById("productDescription").value,
-              };
-              let body = {
-                name: "Quote Request from " + formData.company,
-                priority: 0,
-                workbinId: "73c22582-0423-4398-bc0f-a632c8cd96b1",
-                typeId: "05fcfec5-418f-4d8a-abff-31747253936e",
-                customFields: {
-                  fullname_identifier: formData.name,
-                  email_identifier: formData.email,
-                  phone_number: formData.phone,
-                  extension_number: formData.extension,
-                  fax_number: formData.fax,
-                  business_type_text: formData.businessType,
-                  company_name_text: formData.company,
-                  account_number_text: formData.accountNumber,
-                  street_address_text: formData.streetAddress,
-                  aptsuiteunit_text: formData.apt,
-                  city_text: formData.city,
-                  state_text: formData.state,
-                  zip_code_number: formData.zip,
-                  shipping_instructions_longtext: formData.shippingInstructions,
-                  msc_number_text: formData.partNumber,
-                  manufacturer_part_no_text: formData.partName,
-                  manufacturer_name_text: formData.manuname,
-                  lead_time_required_text: formData.leadTime,
-                  product_description_longtext: formData.productDescription,
-                  quantity_integer: formData.quantity,
-                },
-              };
+          const client = platformClient.ApiClient.instance;
+          let apiInstance = new platformClient.TaskManagementApi();
+          const formData = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            extension: document.getElementById("extension").value,
+            fax: document.getElementById("fax").value,
+            businessType: document.getElementById("businessType").value,
+            company: document.getElementById("company").value,
+            accountNumber: document.getElementById("accountNumber").value,
+            streetAddress: document.getElementById("streetAddress").value,
+            apt: document.getElementById("apt").value,
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            zip: document.getElementById("zip").value,
+            shippingInstructions: document.getElementById(
+              "shippingInstructions"
+            ).value,
+            partNumber: document.getElementById("partNumber").value,
+            partName: document.getElementById("partName").value,
+            quantity: document.getElementById("quantity").value,
+            manuname: document.getElementById("manuname").value,
+            leadTime: document.getElementById("leadTime").value,
+            productDescription:
+              document.getElementById("productDescription").value,
+          };
+          let body = {
+            name: "Quote Request from " + formData.company,
+            priority: 0,
+            workbinId: "73c22582-0423-4398-bc0f-a632c8cd96b1",
+            typeId: "05fcfec5-418f-4d8a-abff-31747253936e",
+            customFields: {
+              fullname_identifier: formData.name,
+              email_identifier: formData.email,
+              phone_number: formData.phone,
+              extension_number: formData.extension,
+              fax_number: formData.fax,
+              business_type_text: formData.businessType,
+              company_name_text: formData.company,
+              account_number_text: formData.accountNumber,
+              street_address_text: formData.streetAddress,
+              aptsuiteunit_text: formData.apt,
+              city_text: formData.city,
+              state_text: formData.state,
+              zip_code_number: formData.zip,
+              shipping_instructions_longtext: formData.shippingInstructions,
+              msc_number_text: formData.partNumber,
+              manufacturer_part_no_text: formData.partName,
+              manufacturer_name_text: formData.manuname,
+              lead_time_required_text: formData.leadTime,
+              product_description_longtext: formData.productDescription,
+              quantity_integer: formData.quantity,
+            },
+          };
 
-              client
-                .postTaskmanagementWorkitems(body)
-                .then((data) => {
-                  console.log(
-                    `postTaskmanagementWorkitems success! data: ${JSON.stringify(
-                      data,
-                      null,
-                      2
-                    )}`
-                  );
-                })
-                .catch((err) => {
-                  console.log(
-                    "There was a failure calling postTaskmanagementWorkitems"
-                  );
-                  console.error(err);
-                });
+          apiInstance
+            .postTaskmanagementWorkitems(body)
+            .then((data) => {
+              console.log(
+                `postTaskmanagementWorkitems success! data: ${JSON.stringify(
+                  data,
+                  null,
+                  2
+                )}`
+              );
             })
             .catch((err) => {
-              // Handle failure response
-              console.log(err);
+              console.log(
+                "There was a failure calling postTaskmanagementWorkitems"
+              );
+              console.error(err);
             });
-
-          console.log("Form Data:", formData);
         });
     </script>
   </body>
