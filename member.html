@@ -134,13 +134,11 @@
         padding-top: 10px;
         border-top: 1px solid #eee;
       }
-
       .reply-button {
         background-color: #4caf50;
         font-size: 0.9em;
         padding: 6px 12px;
       }
-
       .reply-button:hover {
         background-color: #45a049;
       }
@@ -388,60 +386,29 @@
         let messageItems = messages
           .map((message) => {
             return `
-        <div class="message ${message.read ? "" : "unread"}" data-id="${
-              message.id
-            }">
-            <div class="message-header">
-                <div>${message.subject}</div>
-                <div class="message-date">${message.date}</div>
-            </div>
-            <div>From: ${message.sender}</div>
-            ${
-              selectedMessageId === message.id
-                ? `<div class="message-content">
-                    ${message.content}
-                    <div class="message-actions" style="margin-top: 15px;">
-                        <button class="reply-button" data-sender="${message.sender}" data-subject="${message.subject}">Reply by Email</button>
+                    <div class="message ${
+                      message.read ? "" : "unread"
+                    }" data-id="${message.id}">
+                        <div class="message-header">
+                            <div>${message.subject}</div>
+                            <div class="message-date">${message.date}</div>
+                        </div>
+                        <div>From: ${message.sender}</div>
+                        ${
+                          selectedMessageId === message.id
+                            ? `<div class="message-content">
+                                ${message.content}
+                                <div class="message-actions">
+                                    <button class="reply-button" data-sender="${message.sender}" data-subject="${message.subject}">Reply by Email</button>
+                                </div>
+                            </div>`
+                            : ""
+                        }
                     </div>
-                </div>`
-                : ""
-            }
-        </div>
-    `;
-
-            // Add event listeners for reply buttons
-            document.querySelectorAll(".reply-button").forEach((button) => {
-              button.addEventListener("click", (e) => {
-                e.stopPropagation(); // Prevent triggering the message toggle
-                const sender = button.getAttribute("data-sender");
-                const subject = button.getAttribute("data-subject");
-                openReplyEmail(sender, subject);
-              });
-            });
+                `;
           })
           .join("");
-        // Function to open email reply from a message
-        function openReplyEmail(sender, subject) {
-          // Open the email modal
-          document.getElementById("newEmailModal").style.display = "block";
 
-          // Pre-fill the email form
-          // In a real app, you might have a mapping of department names to email addresses
-          let recipientEmail = "";
-          if (sender === "Benefits Department")
-            recipientEmail = "benefits@example.com";
-          else if (sender === "Security Team")
-            recipientEmail = "security@example.com";
-          else if (sender === "Customer Support")
-            recipientEmail = "support@example.com";
-          else if (sender === "Billing Department")
-            recipientEmail = "billing@example.com";
-          else recipientEmail = "contact@example.com";
-
-          document.getElementById("emailTo").value = recipientEmail;
-          document.getElementById("emailSubject").value = `Re: ${subject}`;
-          document.getElementById("emailContent").focus();
-        }
         appDiv.innerHTML = `
                 <div class="user-info">
                     <div>
@@ -469,6 +436,16 @@
           messageDiv.addEventListener("click", () => {
             const messageId = parseInt(messageDiv.getAttribute("data-id"));
             toggleMessage(messageId);
+          });
+        });
+
+        // Add event listeners for reply buttons
+        document.querySelectorAll(".reply-button").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent triggering the message toggle
+            const sender = button.getAttribute("data-sender");
+            const subject = button.getAttribute("data-subject");
+            openReplyEmail(sender, subject);
           });
         });
 
@@ -510,6 +487,29 @@
         };
       }
 
+      // Function to open email reply from a message
+      function openReplyEmail(sender, subject) {
+        // Open the email modal
+        document.getElementById("newEmailModal").style.display = "block";
+
+        // Pre-fill the email form
+        // In a real app, you might have a mapping of department names to email addresses
+        let recipientEmail = "";
+        if (sender === "Benefits Department")
+          recipientEmail = "benefits@example.com";
+        else if (sender === "Security Team")
+          recipientEmail = "security@example.com";
+        else if (sender === "Customer Support")
+          recipientEmail = "support@example.com";
+        else if (sender === "Billing Department")
+          recipientEmail = "billing@example.com";
+        else recipientEmail = "contact@example.com";
+
+        document.getElementById("emailTo").value = recipientEmail;
+        document.getElementById("emailSubject").value = `Re: ${subject}`;
+        document.getElementById("emailContent").focus();
+      }
+
       // Function to toggle message content visibility
       function toggleMessage(messageId) {
         // If clicking the same message, toggle it off
@@ -528,23 +528,7 @@
         // Re-render the messages
         renderMessages();
       }
-      // Function to reply to a message by email
-      function replyToMessageByEmail(messageId) {
-        const message = messages.find((m) => m.id === messageId);
-        if (!message) return;
 
-        // Pre-populate the email form with reply information
-        document.getElementById("emailTo").value = message.senderEmail;
-        document.getElementById(
-          "emailSubject"
-        ).value = `RE: ${message.subject}`;
-        document.getElementById(
-          "emailContent"
-        ).value = `\n\n------ Original Message ------\nFrom: ${message.sender}\nDate: ${message.date}\nSubject: ${message.subject}\n\n${message.content}`;
-
-        // Open the email modal
-        openNewEmailModal();
-      }
       // Function to handle logout
       function handleLogout() {
         isLoggedIn = false;
@@ -586,7 +570,7 @@
           id: 1000 + messages.length + 1,
           subject: subject,
           content: content,
-          date: new Date().toISOString().split("T")[0],
+          date: new Date().toISOString().split("T"),
           sender: "You",
           read: true,
         };
