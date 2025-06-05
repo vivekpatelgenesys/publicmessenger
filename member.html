@@ -477,7 +477,23 @@
         // Re-render the messages
         renderMessages();
       }
+      // Function to reply to a message by email
+      function replyToMessageByEmail(messageId) {
+        const message = messages.find((m) => m.id === messageId);
+        if (!message) return;
 
+        // Pre-populate the email form with reply information
+        document.getElementById("emailTo").value = message.senderEmail;
+        document.getElementById(
+          "emailSubject"
+        ).value = `RE: ${message.subject}`;
+        document.getElementById(
+          "emailContent"
+        ).value = `\n\n------ Original Message ------\nFrom: ${message.sender}\nDate: ${message.date}\nSubject: ${message.subject}\n\n${message.content}`;
+
+        // Open the email modal
+        openNewEmailModal();
+      }
       // Function to handle logout
       function handleLogout() {
         isLoggedIn = false;
