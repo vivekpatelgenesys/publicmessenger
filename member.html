@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Member Portal - Secure Messages</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f7fa;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #0066cc;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .user-info {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 20px;
+      }
+      .message {
+        background-color: white;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .message-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+      .message-content {
+        line-height: 1.5;
+      }
+      .message-date {
+        color: #666;
+        font-size: 0.8em;
+      }
+      .unread {
+        border-left: 4px solid #0066cc;
+      }
+      .login-form {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+      }
+      .buttons-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+      }
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 5px;
+        width: 70%;
+        max-width: 600px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover {
+        color: black;
+      }
+      .message-actions {
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+      }
+      .reply-button {
+        background-color: #4caf50;
+        font-size: 0.9em;
+        padding: 6px 12px;
+      }
+      .reply-button:hover {
+        background-color: #45a049;
+      }
+    </style>
+    <script src="https://sdk-cdn.mypurecloud.com/javascript/219.0.0/purecloud-platform-client-v2.min.js"></script>
+    <script>
+      const platformClient = require("platformClient");
+      const client = platformClient.ApiClient.instance;
+      client
+        .loginImplicitGrant(
+          "5bc71ed7-0c31-4351-aca3-ff8a59c88432",
+          "https://vivekpatelgenesys.github.io/publicmessenger/member"
+        )
+        .then((data) => {
+          const accessToken = data.accessToken; // Get token from response
+          client.setAccessToken(accessToken);
+        });
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Member Portal</h1>
+    </div>
+
+    <div class="container" id="app">
+      <!-- Content will be rendered here by JavaScript -->
+    </div>
+
+    <!-- Modal for New Message -->
+    <div id="newMessageModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Send New Message</h2>
+          <span class="close" id="closeNewMessage">&times;</span>
+        </div>
+        <div class="form-group">
+          <label for="recipient">Recipient:</label>
+          <select id="recipient">
+            <option value="benefits">Benefits Department</option>
+            <option value="security">Security Team</option>
+            <option value="support">Customer Support</option>
+            <option value="billing">Billing Department</option>
+            <option value="general">General Inquiry</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="messageSubject">Subject:</label>
+          <input
+            type="text"
+            id="messageSubject"
+            placeholder="Enter message subject"
+          />
+        </div>
+        <div class="form-group">
+          <label for="messageContent">Message:</label>
+          <textarea
+            id="messageContent"
+            rows="5"
+            placeholder="Type your message here..."
+          ></textarea>
+        </div>
+        <button id="sendMessageButton">Send Message</button>
+      </div>
+    </div>
+
+    <!-- Modal for New Email -->
+    <div id="newEmailModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Compose New Email</h2>
+          <span class="close" id="closeNewEmail">&times;</span>
+        </div>
+        <div class="form-group">
+          <label for="emailTo">To:</label>
+          <input
+            type="email"
+            id="emailTo"
+            placeholder="Enter recipient email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="emailSubject">Subject:</label>
+          <input
+            type="text"
+            id="emailSubject"
+            placeholder="Enter email subject"
+          />
+        </div>
+        <div class="form-group">
+          <label for="emailContent">Email Body:</label>
+          <textarea
+            id="emailContent"
+            rows="8"
+            placeholder="Type your email here..."
+          ></textarea>
+        </div>
+        <button id="sendEmailButton">Send Email</button>
+      </div>
+    </div>
+
+    <script>
+      // Mock user data
+      const currentDate = new Date();
+      const user = {
+        id: 12345,
+        name: "John Doe",
+        email: "johndoe@example.com",
+        lastLogin: currentDate.toDateString(),
+      };
+
+      // Mock message data
+      const messages = [
+        {
+          id: 1001,
+          subject: "Your Annual Benefits Review",
+          content:
+            "Your annual benefits review is now available. Please log in to your account to review your benefits for the upcoming year.",
+          date: "2023-12-14",
+          sender: "Benefits Department",
+          read: false,
+        },
+        {
+          id: 1002,
+          subject: "New Security Features Implemented",
+          content:
+            "We've added new security features to protect your account. Two-factor authentication is now available in your account settings.",
+          date: "2023-12-10",
+          sender: "Security Team",
+          read: true,
+        },
+        {
+          id: 1003,
+          subject: "Quarterly Newsletter",
+          content:
+            "Our quarterly newsletter is now available with updates on our services and upcoming features.",
+          date: "2023-12-05",
+          sender: "Communications Team",
+          read: true,
+        },
+        {
+          id: 1004,
+          subject: "Important Policy Update",
+          content:
+            "Please review the updated terms of service that will be effective starting next month.",
+          date: "2023-11-28",
+          sender: "Legal Department",
+          read: false,
+        },
+        {
+          id: 1005,
+          subject: "Your Support Ticket #45678",
+          content:
+            "Your recent support ticket has been resolved. Please let us know if you need any further assistance.",
+          date: "2023-11-25",
+          sender: "Customer Support",
+          read: true,
+        },
+        {
+          id: 1006,
+          subject: "Payment Confirmation",
+          content:
+            "This is a confirmation that your recent payment has been processed successfully.",
+          date: "2023-11-20",
+          sender: "Billing Department",
+          read: true,
+        },
+        {
+          id: 1007,
+          subject: "New Feature Announcement",
+          content:
+            "We're excited to announce a new feature that will be available in your next login.",
+          date: "2023-11-15",
+          sender: "Product Team",
+          read: true,
+        },
+        {
+          id: 1008,
+          subject: "Account Verification Required",
+          content:
+            "Please verify your account information to maintain uninterrupted access to all features.",
+          date: "2023-11-10",
+          sender: "Account Management",
+          read: false,
+        },
+        {
+          id: 1009,
+          subject: "Holiday Schedule Update",
+          content:
+            "Please note our revised operating hours during the upcoming holiday season.",
+          date: "2023-11-05",
+          sender: "Operations Team",
+          read: true,
+        },
+        {
+          id: 1010,
+          subject: "Feedback Request",
+          content:
+            "We value your opinion! Please take a moment to complete our brief satisfaction survey.",
+          date: "2023-11-01",
+          sender: "Customer Experience Team",
+          read: true,
+        },
+      ];
+
+      // Track application state
+      let isLoggedIn = false;
+      let selectedMessageId = null;
+
+      // Function to render login screen
+      function renderLoginScreen() {
+        const appDiv = document.getElementById("app");
+        appDiv.innerHTML = `
+                <div class="login-form">
+                    <h2>Login to Member Portal</h2>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" placeholder="Enter your password">
+                    </div>
+                    <button id="loginButton">Login</button>
+                </div>
+            `;
+
+        // Add event listener to login button
+        document
+          .getElementById("loginButton")
+          .addEventListener("click", handleLogin);
+      }
+
+      // Function to handle login
+      function handleLogin() {
+        // In a real app, you would validate credentials against a backend
+        // For this demo, we'll just set isLoggedIn to true
+        isLoggedIn = true;
+        renderMessages();
+      }
+
+      // Function to render message list
+      function renderMessages() {
+        const appDiv = document.getElementById("app");
+
+        let messageItems = messages
+          .map((message) => {
+            return `
+                    <div class="message ${
+                      message.read ? "" : "unread"
+                    }" data-id="${message.id}">
+                        <div class="message-header">
+                            <div>${message.subject}</div>
+                            <div class="message-date">${message.date}</div>
+                        </div>
+                        <div>From: ${message.sender}</div>
+                        ${
+                          selectedMessageId === message.id
+                            ? `<div class="message-content">
+                                ${message.content}
+                                <div class="message-actions">
+                                    <button class="reply-button" data-sender="${message.sender}" data-subject="${message.subject}">Reply by Email</button>
+                                </div>
+                            </div>`
+                            : ""
+                        }
+                    </div>
+                `;
+          })
+          .join("");
+
+        appDiv.innerHTML = `
+                <div class="user-info">
+                    <div>
+                        <strong>${user.name}</strong> (${user.email})
+                    </div>
+                    <div>
+                        Last login: ${user.lastLogin}
+                        <button id="logoutButton">Logout</button>
+                    </div>
+                </div>
+                
+                <div class="buttons-container">
+                    <h2>Secure Messages</h2>
+                    <div class="action-buttons">
+                        <button id="newMessageButton">Send New Message</button>
+                        <button id="newEmailButton">New Email</button>
+                    </div>
+                </div>
+                
+                ${messageItems}
+            `;
+
+        // Add event listeners to messages and buttons
+        document.querySelectorAll(".message").forEach((messageDiv) => {
+          messageDiv.addEventListener("click", () => {
+            const messageId = parseInt(messageDiv.getAttribute("data-id"));
+            toggleMessage(messageId);
+          });
+        });
+
+        // Add event listeners for reply buttons
+        document.querySelectorAll(".reply-button").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent triggering the message toggle
+            const sender = button.getAttribute("data-sender");
+            const subject = button.getAttribute("data-subject");
+            openReplyEmail(sender, subject);
+          });
+        });
+
+        document
+          .getElementById("logoutButton")
+          .addEventListener("click", handleLogout);
+        document
+          .getElementById("newMessageButton")
+          .addEventListener("click", openNewMessageModal);
+        document
+          .getElementById("newEmailButton")
+          .addEventListener("click", openNewEmailModal);
+
+        // Set up modal close buttons
+        document
+          .getElementById("closeNewMessage")
+          .addEventListener("click", closeNewMessageModal);
+        document
+          .getElementById("closeNewEmail")
+          .addEventListener("click", closeNewEmailModal);
+
+        // Set up send buttons
+        document
+          .getElementById("sendMessageButton")
+          .addEventListener("click", sendNewMessage);
+        document
+          .getElementById("sendEmailButton")
+          .addEventListener("click", sendNewEmail);
+
+        // Close modals when clicking outside
+        window.onclick = function (event) {
+          if (event.target === document.getElementById("newMessageModal")) {
+            closeNewMessageModal();
+          } else if (
+            event.target === document.getElementById("newEmailModal")
+          ) {
+            closeNewEmailModal();
+          }
+        };
+      }
+
+      // Function to open email reply from a message
+      function openReplyEmail(sender, subject) {
+        // Open the email modal
+        document.getElementById("newEmailModal").style.display = "block";
+
+        // Pre-fill the email form
+        // In a real app, you might have a mapping of department names to email addresses
+        let recipientEmail = "";
+        if (sender === "Benefits Department")
+          recipientEmail = "benefits@example.com";
+        else if (sender === "Security Team")
+          recipientEmail = "security@example.com";
+        else if (sender === "Customer Support")
+          recipientEmail = "support@example.com";
+        else if (sender === "Billing Department")
+          recipientEmail = "billing@example.com";
+        else recipientEmail = "contact@example.com";
+
+        document.getElementById("emailTo").value = recipientEmail;
+        document.getElementById("emailSubject").value = `Re: ${subject}`;
+        document.getElementById("emailContent").focus();
+      }
+
+      // Function to toggle message content visibility
+      function toggleMessage(messageId) {
+        // If clicking the same message, toggle it off
+        if (selectedMessageId === messageId) {
+          selectedMessageId = null;
+        } else {
+          selectedMessageId = messageId;
+
+          // Mark the message as read
+          const messageIndex = messages.findIndex((m) => m.id === messageId);
+          if (messageIndex >= 0) {
+            messages[messageIndex].read = true;
+          }
+        }
+
+        // Re-render the messages
+        renderMessages();
+      }
+
+      // Function to handle logout
+      function handleLogout() {
+        isLoggedIn = false;
+        selectedMessageId = null;
+        renderLoginScreen();
+      }
+
+      // Modal functions
+      function openNewMessageModal() {
+        document.getElementById("newMessageModal").style.display = "block";
+      }
+
+      function closeNewMessageModal() {
+        document.getElementById("newMessageModal").style.display = "none";
+      }
+
+      function openNewEmailModal() {
+        document.getElementById("newEmailModal").style.display = "block";
+      }
+
+      function closeNewEmailModal() {
+        document.getElementById("newEmailModal").style.display = "none";
+      }
+
+      // Send functions
+      function sendNewMessage() {
+        const recipient = document.getElementById("recipient").value;
+        const subject = document.getElementById("messageSubject").value;
+        const content = document.getElementById("messageContent").value;
+
+        if (!subject || !content) {
+          alert("Please fill in all fields");
+          return;
+        }
+
+        // In a real app, you would send this to a server
+        // For this demo, we'll just add it to our messages array
+        const newMessage = {
+          id: 1000 + messages.length + 1,
+          subject: subject,
+          content: content,
+          date: new Date().toISOString().split("T"),
+          sender: "You",
+          read: true,
+        };
+
+        messages.unshift(newMessage);
+        closeNewMessageModal();
+        renderMessages();
+
+        // Reset form fields
+        document.getElementById("messageSubject").value = "";
+        document.getElementById("messageContent").value = "";
+
+        alert("Message sent successfully!");
+      }
+
+      function sendNewEmail() {
+        const to = document.getElementById("emailTo").value;
+        const subject = document.getElementById("emailSubject").value;
+        const content = document.getElementById("emailContent").value;
+
+        if (!to || !subject || !content) {
+          alert("Please fill in all fields");
+          return;
+        }
+
+        let apiInstance = new platformClient.ConversationsApi();
+
+        let body = {
+          queueId: "95bfd0c0-336a-4cbe-a6d0-ac171e03d007",
+          provider: "Test",
+          fromAddress: user.email,
+          fromName: user.name,
+          subject: subject,
+          direction: "INBOUND",
+          htmlBody: content,
+        }; // Object | Create email request
+
+        // Create an email conversation
+        apiInstance
+          .postConversationsEmails(body)
+          .then((data) => {
+            console.log(
+              `postConversationsEmails success! data: ${JSON.stringify(
+                data,
+                null,
+                2
+              )}`
+            );
+          })
+          .catch((err) => {
+            console.log("There was a failure calling postConversationsEmails");
+            console.error(err);
+          });
+
+        closeNewEmailModal();
+
+        // Reset form fields
+        document.getElementById("emailTo").value = "";
+        document.getElementById("emailSubject").value = "";
+        document.getElementById("emailContent").value = "";
+
+        alert(`Email sent to ${to} successfully!`);
+      }
+
+      // Initialize the app
+      window.onload = function () {
+        if (isLoggedIn) {
+          renderMessages();
+        } else {
+          renderLoginScreen();
+        }
+      };
+    </script>
+  </body>
+</html>
